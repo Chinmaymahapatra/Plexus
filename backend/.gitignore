@@ -1,0 +1,19 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# Environment
+.env
+
+# Node
+node_modules/
+dist/
+
+# VS Code
+.vscode/settings.json
+
+# Keep the workspace file
+!plexus.code-workspace

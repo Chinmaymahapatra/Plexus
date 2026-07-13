@@ -1,0 +1,40 @@
+# Core
+fastapi==0.111.0
+uvicorn[standard]==0.30.1
+python-dotenv==1.0.1
+pydantic==2.7.4
+pydantic-settings==2.3.4
+
+# Database
+asyncpg==0.29.0
+sqlalchemy[asyncio]==2.0.31
+alembic==1.13.2
+pgvector==0.3.2
+
+# Cache / Rate limiting
+redis[asyncio]==5.0.7
+
+# HTTP client (for calling provider APIs)
+httpx==0.27.0
+
+# Auth
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# AWS
+boto3==1.34.144
+botocore==1.34.144
+
+# Payments
+stripe==9.12.0
+
+# Embeddings (for semantic registry search)
+openai==1.35.13
+
+# Observability
+structlog==24.2.0
+
+# Testing
+pytest==8.2.2
+pytest-asyncio==0.23.7
+httpx==0.27.0
