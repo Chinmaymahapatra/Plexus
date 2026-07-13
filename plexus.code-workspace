@@ -1,0 +1,48 @@
+// plexus.code-workspace  (save at repo root)
+{
+  "folders": [
+    { "name": "🚀 Plexus Root", "path": "." },
+    { "name": "⚙️ Proxy Server", "path": "proxy-server" },
+    { "name": "🔌 MCP Server", "path": "mcp-server" },
+    { "name": "📦 SDK", "path": "sdk" },
+    { "name": "🏗️ Infra", "path": "infra" },
+  ],
+  "settings": {
+    "python.defaultInterpreterPath": "${workspaceFolder}/proxy-server/venv/bin/python",
+    "python.formatting.provider": "none",
+    "[python]": {
+      "editor.defaultFormatter": "charliermarsh.ruff",
+      "editor.formatOnSave": true,
+      "editor.codeActionsOnSave": {
+        "source.fixAll.ruff": "explicit",
+        "source.organizeImports.ruff": "explicit"
+      },
+    },
+    "[typescript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.formatOnSave": true,
+    },
+    "editor.rulers": [88],
+    "files.exclude": {
+      "**/__pycache__": true,
+      "**/.pytest_cache": true,
+      "**/node_modules": true,
+      "**/venv": true,
+      "**/.ruff_cache": true,
+    },
+  },
+  "extensions": {
+    "recommendations": [
+      "charliermarsh.ruff",
+      "ms-python.python",
+      "ms-python.debugpy",
+      "esbenp.prettier-vscode",
+      "bradlc.vscode-tailwindcss",
+      "ms-azuretools.vscode-docker",
+      "eamodio.gitlens",
+      "humao.rest-client",
+      "mtxr.sqltools",
+      "mtxr.sqltools-driver-pg",
+    ],
+  },
+}
