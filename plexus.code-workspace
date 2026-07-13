@@ -1,11 +1,10 @@
 // plexus.code-workspace  (save at repo root)
 {
   "folders": [
-    { "name": "🚀 Plexus Root", "path": "." },
-    { "name": "⚙️ Proxy Server", "path": "proxy-server" },
-    { "name": "🔌 MCP Server", "path": "mcp-server" },
-    { "name": "📦 SDK", "path": "sdk" },
-    { "name": "🏗️ Infra", "path": "infra" },
+    {
+      "name": "🚀 Plexus Root",
+      "path": "."
+    }
   ],
   "settings": {
     "python.defaultInterpreterPath": "${workspaceFolder}/proxy-server/venv/bin/python",
