@@ -103,7 +103,7 @@ def upgrade() -> None:
     op.create_table(
         'transactions',
         sa.Column('id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4),
-        sa.Column('idempotency_key', sa.String(36), unique=True, nullable=False),
+        sa.Column('idempotency_key', sa.String(255), unique=True, nullable=False),
         sa.Column('wallet_id', UUID(as_uuid=True), sa.ForeignKey('wallets.id'), nullable=False),
         sa.Column('developer_id', UUID(as_uuid=True), sa.ForeignKey('developers.id'), nullable=False),
         sa.Column('amount_credits', sa.BigInteger, nullable=False),
@@ -111,7 +111,7 @@ def upgrade() -> None:
         sa.Column('status', sa.String(20), nullable=False),
         sa.Column('api_call_id', UUID(as_uuid=True), sa.ForeignKey('api_calls.id'), nullable=True),
         sa.Column('stripe_payment_id', sa.String(255), nullable=True),
-        sa.Column('metadata', JSONB, nullable=True),
+        sa.Column('call_metadata', JSONB, nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now()),
     )
     op.create_index('ix_transactions_wallet_id', 'transactions', ['wallet_id'])
