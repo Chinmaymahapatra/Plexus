@@ -5,6 +5,7 @@ All models are defined here so Alembic can find them for migrations.
 
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy import text
 import structlog
 
 from src.config import settings
@@ -43,10 +44,9 @@ async def get_db():
 
 async def init_db():
     log.info("db.connecting", url=settings.DATABASE_URL.split("@")[-1])
-    # Tables are created via Alembic migrations, not here.
-    # This just verifies the connection pool is healthy.
-    async with engine.begin() as conn:
-        await conn.run_sync(lambda c: c.execute(c.dialect.statement_compiler(c, None)))
+    # Simple connection test — just run SELECT 1
+    async with engine.connect() as conn:
+        await conn.execute(text("SELECT 1"))
     log.info("db.connected")
 
 

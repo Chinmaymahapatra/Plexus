@@ -86,8 +86,8 @@ class WalletService:
             wallet_id=wallet.id,
             developer_id=developer_id,
             amount_credits=amount_credits,
-            type=TransactionType.TOPUP,
-            status=TransactionStatus.SETTLED,
+            type=TransactionType.TOPUP.value,
+            status=TransactionStatus.SETTLED.value,
             stripe_payment_id=stripe_payment_id,
         )
         self.db.add(tx)
@@ -136,8 +136,8 @@ class WalletService:
             wallet_id=wallet.id,
             developer_id=developer_id,
             amount_credits=-amount_credits,  # negative = debit
-            type=TransactionType.DEBIT,
-            status=TransactionStatus.PENDING,
+            type=TransactionType.DEBIT.value,
+            status=TransactionStatus.PENDING.value,
             api_call_id=api_call_id,
         )
         self.db.add(tx)
@@ -156,7 +156,7 @@ class WalletService:
         Phase 2a: API call succeeded. Deduct from balance, release lock.
         """
         tx = await self.db.get(Transaction, transaction_id)
-        if not tx or tx.status != TransactionStatus.PENDING:
+        if not tx or tx.status != TransactionStatus.PENDING.value:
             raise ValueError(f"Transaction {transaction_id} not in PENDING state")
 
         wallet = await self.db.get(Wallet, tx.wallet_id)
@@ -166,7 +166,7 @@ class WalletService:
         wallet.balance_credits -= amount
         wallet.locked_credits  -= amount
 
-        tx.status = TransactionStatus.SETTLED
+        tx.status = TransactionStatus.SETTLED.value
         await self.db.flush()
 
         log.info("wallet.debit.settled", tx_id=str(transaction_id), credits=amount)
@@ -177,7 +177,7 @@ class WalletService:
         Phase 2b: API call failed. Release the lock without touching balance.
         """
         tx = await self.db.get(Transaction, transaction_id)
-        if not tx or tx.status != TransactionStatus.PENDING:
+        if not tx or tx.status != TransactionStatus.PENDING.value:
             raise ValueError(f"Transaction {transaction_id} not in PENDING state")
 
         wallet = await self.db.get(Wallet, tx.wallet_id)
@@ -185,7 +185,7 @@ class WalletService:
 
         # Just release the lock — balance unchanged
         wallet.locked_credits -= amount
-        tx.status = TransactionStatus.REFUNDED
+        tx.status = TransactionStatus.REFUNDED.value
         await self.db.flush()
 
         log.info("wallet.debit.refunded", tx_id=str(transaction_id), credits=amount)

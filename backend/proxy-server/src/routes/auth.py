@@ -15,7 +15,7 @@ from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from jose import jwt
-from passlib.context import CryptContext
+import bcrypt
 from pydantic import BaseModel, EmailStr
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -26,10 +26,10 @@ from src.models import Developer, SDKToken, Wallet
 from src.services.wallet import WalletService
 
 router = APIRouter()
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 # ─── Schemas ──────────────────────────────────────────────────────────────────
+
 
 class RegisterRequest(BaseModel):
     email: EmailStr
@@ -47,6 +47,7 @@ class CreateTokenRequest(BaseModel):
 
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
+
 
 def create_jwt(developer_id: str) -> str:
     expire = datetime.now(timezone.utc) + timedelta(minutes=settings.JWT_EXPIRY_MINUTES)
@@ -71,6 +72,7 @@ def generate_sdk_token(is_live: bool = False) -> tuple[str, str]:
 
 # ─── Routes ───────────────────────────────────────────────────────────────────
 
+
 @router.post("/register", status_code=201)
 async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
     """Register a new developer. Creates wallet and grants free credits."""
@@ -82,7 +84,9 @@ async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
     # Create developer
     developer = Developer(
         email=body.email,
-        hashed_password=pwd_context.hash(body.password),
+        hashed_password=bcrypt.hashpw(
+            body.password.encode("utf-8"), bcrypt.gensalt()
+        ).decode("utf-8"),
         name=body.name,
     )
     db.add(developer)
@@ -118,7 +122,9 @@ async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Developer).where(Developer.email == body.email))
     developer = result.scalar_one_or_none()
 
-    if not developer or not pwd_context.verify(body.password, developer.hashed_password):
+    if not developer or not bcrypt.checkpw(
+        body.password.encode("utf-8"), developer.hashed_password.encode("utf-8")
+    ):
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
     if not developer.is_active:
@@ -140,7 +146,9 @@ async def create_sdk_token(
     """Create a new SDK token for a developer's project or agent."""
     developer: Developer = request.state.developer
 
-    raw_token, token_hash = generate_sdk_token(is_live=settings.ENVIRONMENT == "production")
+    raw_token, token_hash = generate_sdk_token(
+        is_live=settings.ENVIRONMENT == "production"
+    )
     sdk_token = SDKToken(
         developer_id=developer.id,
         token_hash=token_hash,
