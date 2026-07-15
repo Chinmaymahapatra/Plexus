@@ -63,9 +63,10 @@ async def call_api(
 
     proxy = ProxyService(db)
 
-    # Find the SDK token ID from the request (set by auth middleware)
-    # In a real impl, we'd store this on request.state in the auth middleware
-    sdk_token_id = uuid.uuid4()  # placeholder — wire up from auth middleware
+    # CHANGED: was `sdk_token_id = uuid.uuid4()  # placeholder — wire up from auth middleware`
+    # Now reads the real SDKToken row's id, which the auth middleware attaches
+    # to request.state.sdk_token after validating the Bearer token.
+    sdk_token_id = request.state.sdk_token.id
 
     try:
         result = await proxy.call(

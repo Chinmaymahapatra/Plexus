@@ -12,7 +12,7 @@ Public routes (no token needed):
 """
 
 import hashlib
-from typing import Optional
+from typing import Optional, Tuple
 
 import structlog
 from fastapi import Request, Response
@@ -48,7 +48,10 @@ class AuthMiddleware(BaseHTTPMiddleware):
                 content={"error": "Missing Authorization header. Include: Bearer plx_live_<token>"},
             )
 
-        developer = await self._validate_token(token)
+        # CHANGED: _validate_token now returns a (developer, sdk_token) tuple
+        # instead of just the developer, so we have the real SDKToken row
+        # available to attach to request.state below.
+        developer, sdk_token = await self._validate_token(token)
         if not developer:
             return JSONResponse(
                 status_code=401,
@@ -57,6 +60,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
 
         # Attach developer to request state for downstream use
         request.state.developer = developer
+        request.state.sdk_token = sdk_token  # CHANGED: added — this is the real SDKToken DB row
         request.state.token_raw = token
 
         return await call_next(request)
@@ -67,7 +71,10 @@ class AuthMiddleware(BaseHTTPMiddleware):
             return auth_header[7:]
         return None
 
-    async def _validate_token(self, token: str) -> Optional[Developer]:
+    # CHANGED: return type is now Tuple[Optional[Developer], Optional[SDKToken]]
+    # instead of Optional[Developer]. Both failure paths now return (None, None)
+    # instead of just None, so the caller can always safely unpack two values.
+    async def _validate_token(self, token: str) -> Tuple[Optional[Developer], Optional[SDKToken]]:
         token_hash = hashlib.sha256(token.encode()).hexdigest()
 
         async with AsyncSessionLocal() as db:
@@ -79,11 +86,11 @@ class AuthMiddleware(BaseHTTPMiddleware):
             sdk_token = result.scalar_one_or_none()
 
             if not sdk_token:
-                return None
+                return None, None  # CHANGED: was `return None`
 
             # Load the developer
             developer = await db.get(Developer, sdk_token.developer_id)
             if not developer or not developer.is_active:
-                return None
+                return None, None  # CHANGED: was `return None`
 
-            return developer
+            return developer, sdk_token  # CHANGED: was `return developer`

@@ -63,7 +63,7 @@ def upgrade() -> None:
         sa.Column('openapi_schema', JSONB, nullable=True),
         sa.Column('auth_type', sa.String(50), default='api_key'),
         sa.Column('auth_header', sa.String(100), default='X-API-Key'),
-        sa.Column('is_active', sa.Boolean, default=True),
+        sa.Column('is_active', sa.Boolean(), nullable=False, server_default=sa.true()),
         # pgvector column — 1536 dims for text-embedding-3-small
         sa.Column('embedding', sa.Text, nullable=True),  # stored as vector type via raw SQL below
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now()),
