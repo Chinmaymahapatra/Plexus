@@ -25,6 +25,7 @@ DEV_KEY_MAP = {
     "serpapi":      settings.DEV_SERPAPI_KEY,
     "apify":        settings.DEV_APIFY_KEY,
     "openweather":  settings.DEV_OPENWEATHER_KEY,
+    "newsapi":      settings.DEV_NEWSAPI_KEY
 }
 
 

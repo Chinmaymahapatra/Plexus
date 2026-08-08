@@ -27,11 +27,18 @@ router = APIRouter()
 
 
 class CallRequest(BaseModel):
-    api: str = Field(..., description="Provider slug (e.g. 'serpapi') or natural language intent")
-    params: dict = Field(default_factory=dict, description="Parameters to pass to the provider API")
+
+    api: str
+
+    actor: str | None = Field(
+        default=None,
+        description="Apify Actor ID (only required for Apify)"
+    )
+
+    params: dict = Field(default_factory=dict)
+
     idempotency_key: str = Field(
-        default_factory=lambda: str(uuid.uuid4()),
-        description="Unique key for this call. Same key returns cached result without charging again."
+        default_factory=lambda: str(uuid.uuid4())
     )
 
 
@@ -74,6 +81,7 @@ async def call_api(
             provider=provider,
             sdk_token_id=sdk_token_id,
             params=body.params,
+            actor=body.actor,
             idempotency_key=body.idempotency_key,
         )
         return {
