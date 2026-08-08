@@ -8,7 +8,7 @@ Design principles:
     floating-point precision bugs. 1 credit = $0.0001 USD at our default rate.
   - Every table has created_at / updated_at for audit purposes.
 """
-
+import sqlalchemy as sa
 import uuid
 from datetime import datetime, timezone
 from enum import Enum as PyEnum
@@ -222,8 +222,7 @@ class APIProvider(Base):
         String(50), default="api_key"
     )  # api_key | bearer | basic
     auth_header: Mapped[str] = mapped_column(String(100), default="X-API-Key")
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
-    # pgvector column — requires pgvector extension
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True, server_default=sa.true())    # pgvector column — requires pgvector extension
     embedding: Mapped[list[float] | None] = mapped_column(Vector(1536), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utcnow

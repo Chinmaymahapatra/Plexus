@@ -63,7 +63,7 @@ def upgrade() -> None:
         sa.Column('openapi_schema', JSONB, nullable=True),
         sa.Column('auth_type', sa.String(50), default='api_key'),
         sa.Column('auth_header', sa.String(100), default='X-API-Key'),
-        sa.Column('is_active', sa.Boolean, default=True),
+        sa.Column('is_active', sa.Boolean(), nullable=False, server_default=sa.true()),
         # pgvector column — 1536 dims for text-embedding-3-small
         sa.Column('embedding', sa.Text, nullable=True),  # stored as vector type via raw SQL below
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now()),
@@ -122,7 +122,7 @@ def upgrade() -> None:
     op.execute("""
         INSERT INTO api_providers (id, slug, name, description, category, base_url, cost_per_call, auth_type, auth_header)
         VALUES
-          (gen_random_uuid(), 'serpapi', 'SerpAPI', 'Google Search results in structured JSON. Ideal for research agents that need web search.', 'search', 'https://serpapi.com/search', 2, 'api_key', 'api_key'),
+          (gen_random_uuid(), 'serpapi', 'SerpAPI', 'Google Search results in structured JSON. Ideal for research agents that need web search.', 'search', 'https://serpapi.com/search.json', 2, 'api_key', 'api_key'),
           (gen_random_uuid(), 'openweather', 'OpenWeatherMap', 'Real-time and forecast weather data for any city worldwide.', 'dataset', 'https://api.openweathermap.org/data/2.5/weather', 1, 'api_key', 'appid'),
           (gen_random_uuid(), 'newsapi', 'NewsAPI', 'Latest news articles from 80,000+ sources. Search by keyword, source, or topic.', 'search', 'https://newsapi.org/v2/everything', 1, 'api_key', 'apiKey'),
           (gen_random_uuid(), 'coingecko', 'CoinGecko', 'Cryptocurrency prices, market data, and historical charts. Free tier available.', 'finance', 'https://api.coingecko.com/api/v3/simple/price', 1, 'api_key', 'x-cg-demo-api-key'),

@@ -27,11 +27,18 @@ router = APIRouter()
 
 
 class CallRequest(BaseModel):
-    api: str = Field(..., description="Provider slug (e.g. 'serpapi') or natural language intent")
-    params: dict = Field(default_factory=dict, description="Parameters to pass to the provider API")
+
+    api: str
+
+    actor: str | None = Field(
+        default=None,
+        description="Apify Actor ID (only required for Apify)"
+    )
+
+    params: dict = Field(default_factory=dict)
+
     idempotency_key: str = Field(
-        default_factory=lambda: str(uuid.uuid4()),
-        description="Unique key for this call. Same key returns cached result without charging again."
+        default_factory=lambda: str(uuid.uuid4())
     )
 
 
@@ -63,9 +70,10 @@ async def call_api(
 
     proxy = ProxyService(db)
 
-    # Find the SDK token ID from the request (set by auth middleware)
-    # In a real impl, we'd store this on request.state in the auth middleware
-    sdk_token_id = uuid.uuid4()  # placeholder — wire up from auth middleware
+    # CHANGED: was `sdk_token_id = uuid.uuid4()  # placeholder — wire up from auth middleware`
+    # Now reads the real SDKToken row's id, which the auth middleware attaches
+    # to request.state.sdk_token after validating the Bearer token.
+    sdk_token_id = request.state.sdk_token.id
 
     try:
         result = await proxy.call(
@@ -73,6 +81,7 @@ async def call_api(
             provider=provider,
             sdk_token_id=sdk_token_id,
             params=body.params,
+            actor=body.actor,
             idempotency_key=body.idempotency_key,
         )
         return {

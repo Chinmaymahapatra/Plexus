@@ -39,6 +39,7 @@ class Settings(BaseSettings):
     DEV_SERPAPI_KEY: str = ""
     DEV_APIFY_KEY: str = ""
     DEV_OPENWEATHER_KEY: str = ""
+    DEV_NEWSAPI_KEY: str = ""
 
     @property
     def is_dev(self) -> bool:

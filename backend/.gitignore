@@ -17,3 +17,5 @@ dist/
 
 # Keep the workspace file
 !plexus.code-workspace
+
+Plexus\backend\proxy-server\backend
